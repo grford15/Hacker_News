@@ -20,15 +20,29 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
+    this.fetchSearchtopStories = this.fetchSearchtopStories.bind(
+      this,
+    );
   }
 
   componentDidMount() {
     const { searchTerm } = this.state;
 
+    this.fetchSearchtopStories(searchTerm);
+  }
+
+  fetchSearchtopStories(searchTerm) {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
       .then(response => response.json())
       .then(result => this.setSearchTopStories(result))
       .catch(error => error);
+  }
+
+  onSearchSubmit(event) {
+    const { searchTerm } = this.state;
+    this.fetchSearchtopStories(searchTerm);
+    event.preventDefault();
   }
 
   setSearchTopStories(result) {
@@ -52,17 +66,16 @@ class App extends Component {
     return (
       <div className="page">
         <div className="interactions">
-          <Search value={searchTerm} onChange={this.onSearchChange}>
+          <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
+          >
             Search
           </Search>
         </div>
         {result && (
-          <Table
-            list={result.hits}
-            pattern={searchTerm}
-            onDismiss={this.onDismiss}
-            isSearched={this.isSearched}
-          />
+          <Table list={result.hits} onDismiss={this.onDismiss} />
         )}
       </div>
     );
