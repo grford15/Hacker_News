@@ -21,6 +21,10 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
     };
+
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(
+      this,
+    );
     this.onDismiss = this.onDismiss.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
@@ -50,7 +54,10 @@ class App extends Component {
   onSearchSubmit(event) {
     const { searchTerm } = this.state;
     this.setState({ searchKey: searchTerm });
-    this.fetchSearchtopStories(searchTerm);
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchtopStories(searchTerm);
+    }
+
     event.preventDefault();
   }
 
@@ -72,15 +79,27 @@ class App extends Component {
   }
 
   onDismiss(id) {
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
     const isNotId = item => item.objectID !== id;
-    const updatedHits = this.state.result.hits.filter(isNotId);
+    const updatedHits = hits.filter(isNotId);
+
     this.setState({
-      result: { ...this.state.result, hits: updatedHits },
+      results: {
+        ...results,
+        [searchKey]: { hits: updatedHits, page },
+      },
     });
   }
 
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
+  }
+
+  // function that checks to see if the searchTerm is already in the cache
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm];
   }
 
   render() {
