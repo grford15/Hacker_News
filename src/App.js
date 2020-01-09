@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Search from './components/Search';
 import Table from './components/Table';
+import axios from 'axios';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux';
@@ -42,12 +43,11 @@ class App extends Component {
 
   //Customizable function for calling API & returning results
   fetchSearchtopStories(searchTerm, page = 0) {
-    fetch(
+    axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`,
       //fetch a link made up of variables declared earlier in the code
     )
-      .then(response => response.json()) // take the response & turn it into JSON
-      .then(result => this.setSearchTopStories(result)) // take the result from the call & set it to state
+      .then(result => this.setSearchTopStories(result.data)) // take the result from the call & set it to state
       .catch(error => error);
   }
 
